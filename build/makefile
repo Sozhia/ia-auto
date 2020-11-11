@@ -1,13 +1,13 @@
 CC=g++
 CFLAGS=-I.
-DEPS = ../include/fibonacci_words.h
-OBJ = ../src/fibonacci_words_main.o
+DEPS = ../include/*.cpp
+OBJ = ../src/main.o
 
 %.o:  %.cc $(DEPS)
 	$(CC) -c -o $@ $< $(CFLAGS)
 
-fibonacci_words: $(OBJ)
+main: $(OBJ)
 	$(CC) -o $@ $^ $(CFLAGS)
 
 clean:
-	rm -rf ../src/*o fibonacci_words *.txt
+	rm -rf ../src/*o main *.txt
