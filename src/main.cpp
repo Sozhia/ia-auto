@@ -3,7 +3,7 @@
  * @author Miqueas (Sozhia) Garcia Gonzalez
  * CONTACT: sozhia.business@gmail.com
  * @brief Main function
- * @version 1.0
+ * @version 0.7
  * @date 2020-11-11
  * COLLEGE: Universidad de la Laguna
  * DEGREE: Computer Science
