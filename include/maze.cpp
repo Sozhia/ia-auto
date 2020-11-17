@@ -2,7 +2,7 @@
  * @file maze.cpp
  * @author Miqueas (Sozhia) Garcia Gonzalez
  * CONTACT: sozhia.business@gmail.com
- * @brief Tile class definition
+ * @brief Maze class definition
  * @version 1.0
  * @date 2020-11-11
  * COLLEGE: Universidad de la Laguna
@@ -16,10 +16,9 @@ Maze::Maze() {}
 Maze::Maze(unsigned int a, unsigned int b) {
   SetColSize(b);
   SetRowSize(a);
-  maze_matrix_ = new Tile*[GetRowSize()];
-  for( unsigned int i = 0; i < GetRowSize(); i++ )
-    maze_matrix_[i] = new Tile[GetColSize()];
-  
+  maze_matrix_ = new Tile*[GetColSize()];
+  for( unsigned int i = 0; i < GetColSize(); i++ )
+    maze_matrix_[i] = new Tile[GetRowSize()];
 }
 /**
  * @brief Set the Row Size Attribute (rows_)
@@ -59,51 +58,102 @@ unsigned int Maze::GetColSize() {
  * @param start_tile start position in maze
  * @param end_tile end position in maze
  */
-void Maze::SetHeuristic(Tile &start_tile, Tile &end_tile) {
-  float  start_abscissa, start_ordinate,  end_abscissa, end_ordinate, module;
+void Maze::SetHeuristic() {
+  float  tile_abscissa, tile_ordinate,  end_abscissa, end_ordinate, module;
+  heuristic_ = new float*[GetColSize()];
+  for( unsigned int i = 0; i < GetColSize(); i++ )
+    heuristic_[i] = new float[GetRowSize()];
   for (unsigned int abscissa = 0; abscissa < rows_; abscissa ++) {
     for(unsigned int ordinate = 0; ordinate < columns_; ordinate ++) {
-      if (maze_matrix_[abscissa][ordinate] == start_tile) {
-        start_abscissa = abscissa;
-        start_ordinate = ordinate;
-      }
-      if (maze_matrix_[abscissa][ordinate] == end_tile) {
+      if (maze_matrix_[abscissa][ordinate].GetExit()) {
         end_abscissa = abscissa;
         end_ordinate = ordinate;
       }
     }
   }
-  module = sqrt(( start_abscissa -  end_abscissa) * ( start_abscissa -  end_abscissa ) 
-                  + (start_ordinate - end_ordinate) * (start_ordinate - end_ordinate));
-  heuristic_ = static_cast<unsigned int>(module);
+  for (unsigned int abscissa = 0; abscissa < rows_; abscissa ++) {
+    for(unsigned int ordinate = 0; ordinate < columns_; ordinate ++) {
+      if (maze_matrix_[abscissa][ordinate].GetCost() != inf_) {
+        if (!maze_matrix_[abscissa][ordinate].GetExit()) {
+          tile_abscissa = abscissa;
+          tile_ordinate = ordinate;
+          module = sqrt(( tile_abscissa -  end_abscissa) * ( tile_abscissa -  end_abscissa ) 
+                  + (tile_ordinate - end_ordinate) * (tile_ordinate - end_ordinate));
+          heuristic_[abscissa][ordinate] = module;
+        }
+      } else {
+        heuristic_[abscissa][ordinate] = inf_;
+      } 
+    }
+  }
 }
 /**
  * @brief Get the Heuristic Attribute value 
  * 
- * @return unsigned int heuristic_ value
+ * @return float heuristic_ value
  */
-unsigned int Maze::GetHeuristic() {
-  return heuristic_;
+float Maze::GetHeuristic(unsigned int pos1, unsigned int pos2) {
+  return heuristic_[pos1][pos2];
 }
 /**
- * @brief Randomly fill with obstacles maze_matrix_ matrix of Tiles*
+ * @brief Fill Matrix with Cost = 1 by default
  * 
  * @param start_tile Start point
  * @param end_tile End point or goal
  * @param percent_of_obstacles % of obstacles
  */
-void Maze::FillMaze(Tile &start_tile, Tile &end_tile, Tile &wall_tile, Tile &path_tile, float percent_of_obstacles) {
+void Maze::SetUpMaze() {
+  srand((unsigned int)time(NULL));
   for (unsigned int i = 0; i < GetRowSize(); i++) {  
-    for (unsigned int j = 0; j < GetColSize(); j++) {  
-      if (i == 0 || i == GetRowSize()-1 || j == 0 || j == GetColSize()-1) {      
-        maze_matrix_[i][j] = wall_tile;    
-      } else {
-        maze_matrix_[i][j] = path_tile;
-      }
+    for (unsigned int j = 0; j < GetColSize(); j++) {
+      Tile tile;
+      maze_matrix_[i][j] = tile;
+      maze_matrix_[i][j].SetCost(1);
     }
   }
-  maze_matrix_[1][1] = start_tile;
-  maze_matrix_[4][4] = end_tile; 
+  // SET RANDOMLY START AND EXIT
+  unsigned int pos_1 = rand()%GetColSize();
+  unsigned int pos_2 = rand()%GetRowSize();
+  maze_matrix_[pos_1][pos_2].SetStart();
+  bool flag = false;
+  do {
+    unsigned int pos_3 = rand()%GetColSize();
+    unsigned int pos_4 = rand()%GetRowSize();
+    if (!maze_matrix_[pos_3][pos_4].GetStart()) {
+      maze_matrix_[pos_3][pos_4].SetExit();
+      flag = true;
+    }  
+  } while (!flag);
+}
+/**
+ * @brief Fill Randomly with % of obstacles
+ * 
+ * @param percent_of_obstacles 
+ */
+void Maze::FillRandom(float percent_of_obstacles) {
+  unsigned int space = (GetRowSize() * GetColSize()); // GETTING MAZE AREA
+  unsigned int temp = space * (percent_of_obstacles/100); // SETTING % OF THAT AREA
+  unsigned int count = 0;
+  do {
+    unsigned int v1 = rand() % GetColSize();
+    unsigned int v2 = rand() % GetRowSize();
+    if (maze_matrix_[v1][v2].GetCost() != inf_ && !(maze_matrix_[v1][v2].GetStart() || maze_matrix_[v1][v2].GetExit())) {
+      maze_matrix_[v1][v2].SetCost(inf_);
+      count ++;
+    }
+  }while (count < temp);
+}
+
+bool Maze::Solve(unsigned int start_x, unsigned int start_y, Car &car) {
+  if (maze_matrix_[start_x][start_y].GetExit()) {
+    car.SetVisited(start_x,start_y);
+    return true;
+  }
+  if () {
+    
+  }
+
+
 }
 
 /**
@@ -113,17 +163,19 @@ void Maze::FillMaze(Tile &start_tile, Tile &end_tile, Tile &wall_tile, Tile &pat
  * @param end_tile 
  * @param wall_tile 
  */
-void Maze::PrintMaze(Tile &start_tile, Tile &end_tile, Tile &wall_tile, Tile &path_tile) {
+void Maze::PrintMaze(Car &car) {
   for (unsigned int aux1 = 0; aux1 < rows_; aux1 ++) {
     for(unsigned int aux2 = 0; aux2 < columns_; aux2 ++) {
-      if (maze_matrix_[aux1][aux2].GetIdentifier() == 0) {
-        std::cout << "X";
-      } else if (maze_matrix_[aux1][aux2].GetIdentifier() == 2) {
-        std::cout << "E";
-      } else if (maze_matrix_[aux1][aux2].GetIdentifier() == 1) {
-        std::cout << "S";
-      } else if (maze_matrix_[aux1][aux2].GetIdentifier() == 3) {
-        std::cout << char(177);
+      if (car.GetVisited(aux1, aux2)) {
+        std::cout << "[º]";
+      } else if (maze_matrix_[aux1][aux2].GetExit()) {
+        std::cout << "[E]";
+      } else if (maze_matrix_[aux1][aux2].GetStart()) {
+        std::cout << "[S]";
+      }else if (maze_matrix_[aux1][aux2].GetCost() == 1) {
+        std::cout << "[ ]";
+      } else if (maze_matrix_[aux1][aux2].GetCost() == inf_) {
+        std::cout << "[#]";
       } 
     }
     std::cout << std::endl;

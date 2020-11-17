@@ -1,5 +1,5 @@
 /**
- * @file tile.H
+ * @file tile.h
  * @author Miqueas (Sozhia) Garcia Gonzalez
  * CONTACT: sozhia.business@gmail.com
  * @brief Tile class declaration
@@ -12,17 +12,28 @@
  * 
  */
 #include <iostream>
+#include <stdlib.h>
 #include <cstdlib>
+#include <time.h>
+#include <cmath>
+#include <limits>
+#include <vector>
 
 class Tile {
  private:
-  unsigned int identifier_;
+  unsigned int cost_;
+  bool exit_ = false;
+  bool start_ = false;
  public:
-  Tile();
-  Tile(unsigned int identifier);
-  void SetIdentifier(unsigned int value);
-  unsigned int GetIdentifier();
-  bool operator == (const Tile& rh)const;
-  bool operator!= (const Tile &ptr) const;
-  ~Tile();
+  Tile() {}
+  Tile(unsigned int cost) {cost_ = cost;}
+  void SetCost(unsigned int cost) {cost_ = cost;}
+  unsigned int GetCost() {return cost_;}
+  void SetExit() {exit_ = true;}
+  void SetStart() {start_ = true;}
+  bool GetExit() {return exit_;}
+  bool GetStart() {return start_;}
+  //bool operator == (const Tile& rh) const {return this==&rh;}
+  //bool operator!= (const Tile &ptr) const {return !(this==&ptr);}
+  ~Tile() {}
 };

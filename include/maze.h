@@ -2,7 +2,7 @@
  * @file maze.h
  * @author Miqueas (Sozhia) Garcia Gonzalez
  * CONTACT: sozhia.business@gmail.com
- * @brief Tile class declaration
+ * @brief Maze class declaration
  * @version 1.0
  * @date 2020-11-11
  * COLLEGE: Universidad de la Laguna
@@ -12,19 +12,14 @@
  * 
  */
 
-#include <vector>
-#include "tile.cpp"
-#include <time.h>
-#include<cmath>
-#include <limits>
-
+#include "tile.h"
+#include "car.h"
 class Maze {
  private:
   unsigned int rows_, columns_; // Maze size defined by rows_ x columns_
-  unsigned int heuristic_; // Value of heuristic function used in A* pathfinding
-  const int inf = std::numeric_limits<int>::max(); // inf: max value assigned to unreachable tiles
-  std::vector<Tile> stack; // Stack used in DFS to generate realistic and based logic maze
+  const int inf_ = std::numeric_limits<int>::max(); // inf: max value assigned to unreachable tiles
   Tile** maze_matrix_; // Maze itself represented by matrix
+  float** heuristic_; // Heuristic of all values
  public:
   Maze();
   Maze(unsigned int a, unsigned int b);
@@ -32,11 +27,11 @@ class Maze {
   unsigned int GetRowSize();
   void SetColSize(unsigned int columns);
   unsigned int GetColSize();
-  void SetHeuristic(Tile &start_tile, Tile &end_tile);
-  unsigned int GetHeuristic();
-
-  void DFS(Tile *start_tile);
-  void FillMaze(Tile &start_tile, Tile &end_tile, Tile &wall_tile, Tile &path_tile, float percent_of_obstacles);
-  void PrintMaze(Tile &start_tile, Tile &end_tile, Tile &wall_tile, Tile &path_tile);
+  void SetHeuristic();
+  float GetHeuristic(unsigned int pos1, unsigned int pos2);
+  void SetUpMaze();
+  void FillRandom(float percent_of_obstacles);
+  bool Solve(unsigned int start_x, unsigned int start_y, Car &car);
+  void PrintMaze(Car &car);
   ~Maze();
 };
